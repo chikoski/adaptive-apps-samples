@@ -45,7 +45,8 @@ import com.google.jetstream.presentation.theme.Padding
 
 @Composable
 fun ShowsScreen(
-    onTVShowClick: (movie: Movie) -> Unit,
+    showTvShowDetails: (movie: Movie) -> Unit,
+    playTvShow: (movie: Movie) -> Unit,
     onScroll: (isTopBarVisible: Boolean) -> Unit,
     isTopBarVisible: Boolean,
     showScreenViewModel: ShowScreenViewModel = hiltViewModel(),
@@ -60,7 +61,8 @@ fun ShowsScreen(
             Catalog(
                 tvShowList = currentState.tvShowList,
                 bingeWatchDramaList = currentState.bingeWatchDramaList,
-                onTVShowClick = onTVShowClick,
+                showTvShowDetails = showTvShowDetails,
+                playTvShow = playTvShow,
                 onScroll = onScroll,
                 isTopBarVisible = isTopBarVisible,
                 modifier = Modifier.fillMaxSize()
@@ -73,7 +75,8 @@ fun ShowsScreen(
 private fun Catalog(
     tvShowList: MovieList,
     bingeWatchDramaList: MovieList,
-    onTVShowClick: (movie: Movie) -> Unit,
+    showTvShowDetails: (movie: Movie) -> Unit,
+    playTvShow: (movie: Movie) -> Unit,
     onScroll: (isTopBarVisible: Boolean) -> Unit,
     isTopBarVisible: Boolean,
     modifier: Modifier = Modifier,
@@ -109,7 +112,7 @@ private fun Catalog(
         item {
             ProminentMovieList(
                 movieList = tvShowList,
-                onMovieClick = onTVShowClick,
+                onMovieClick = playTvShow,
                 modifier = Modifier.focusRequester(featured)
             )
         }
@@ -118,7 +121,7 @@ private fun Catalog(
                 modifier = Modifier.padding(top = contentPadding.top),
                 title = StringConstants.Composable.BingeWatchDramasTitle,
                 movieList = bingeWatchDramaList,
-                onMovieSelected = onTVShowClick
+                onMovieSelected = showTvShowDetails
             )
         }
     }

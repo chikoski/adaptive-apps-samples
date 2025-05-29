@@ -21,7 +21,6 @@ import android.content.Context
 import androidx.annotation.OptIn
 import androidx.compose.runtime.Immutable
 import androidx.core.net.toUri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
@@ -48,22 +47,20 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class VideoPlayerScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val repository: MovieRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val player = MutableStateFlow<Player?>(null)
+    private val movieIdFlow = MutableStateFlow<String?>(null)
 
-    private val movieDetails = savedStateHandle
-        .getStateFlow<String?>(VideoPlayerScreen.MOVIE_ID_BUNDLE_KEY, null)
-        .map {
-            if (it != null) {
-                repository.getMovieDetails(movieId = it)
-            } else {
-                null
-            }
+    private val movieDetails = movieIdFlow.map {
+        if (it != null) {
+            repository.getMovieDetails(movieId = it)
+        } else {
+            null
         }
+    }
 
     private val isReadyToPlay = MutableStateFlow(false)
     private val currentMediaIem = MutableStateFlow<MediaItem?>(null)
@@ -147,6 +144,10 @@ class VideoPlayerScreenViewModel @Inject constructor(
         player.addMediaItems(movieDetails.similarMovies.map { it.intoMediaItem() })
 
         player.prepare()
+    }
+
+    fun setMovieId(movieId: String) {
+        movieIdFlow.tryEmit(movieId)
     }
 
     private suspend fun movieDetailsForMediaItem(mediaItem: MediaItem?): MovieDetails? {

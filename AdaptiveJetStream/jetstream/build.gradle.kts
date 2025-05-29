@@ -31,12 +31,12 @@ kotlin {
 android {
     namespace = "com.google.jetstream"
     // Needed for latest androidx snapshot build
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.google.jetstream"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -92,8 +92,10 @@ dependencies {
     // ViewModel in Compose
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // Compose Navigation
-    implementation(libs.androidx.navigation.compose)
+    // Navigation3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
     // Coil
     implementation(libs.coil.compose)

@@ -29,8 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
@@ -48,7 +46,8 @@ import com.google.jetstream.presentation.theme.Padding
 
 @Composable
 fun MoviesScreen(
-    onMovieClick: (movie: Movie) -> Unit,
+    showMovieDetails: (movie: Movie) -> Unit,
+    playMovie: (movie: Movie) -> Unit,
     onScroll: (isTopBarVisible: Boolean) -> Unit,
     isTopBarVisible: Boolean,
     moviesScreenViewModel: MoviesScreenViewModel = hiltViewModel(),
@@ -60,7 +59,8 @@ fun MoviesScreen(
             Catalog(
                 movieList = s.movieList,
                 popularFilmsThisWeek = s.popularFilmsThisWeek,
-                onMovieClick = onMovieClick,
+                showMovieDetails = showMovieDetails,
+                playMovie = playMovie,
                 onScroll = onScroll,
                 isTopBarVisible = isTopBarVisible,
                 modifier = Modifier.fillMaxSize(),
@@ -73,7 +73,8 @@ fun MoviesScreen(
 private fun Catalog(
     movieList: MovieList,
     popularFilmsThisWeek: MovieList,
-    onMovieClick: (movie: Movie) -> Unit,
+    showMovieDetails: (movie: Movie) -> Unit,
+    playMovie: (movie: Movie) -> Unit,
     onScroll: (isTopBarVisible: Boolean) -> Unit,
     isTopBarVisible: Boolean,
     modifier: Modifier = Modifier,
@@ -109,7 +110,7 @@ private fun Catalog(
         item {
             ProminentMovieList(
                 movieList = movieList,
-                onMovieClick = onMovieClick,
+                onMovieClick = playMovie,
                 modifier = Modifier
                     .focusRequester(prominent)
                     .focusProperties {
@@ -135,7 +136,7 @@ private fun Catalog(
                     },
                 title = StringConstants.Composable.PopularFilmsThisWeekTitle,
                 movieList = popularFilmsThisWeek,
-                onMovieSelected = onMovieClick
+                onMovieSelected = showMovieDetails
             )
         }
     }

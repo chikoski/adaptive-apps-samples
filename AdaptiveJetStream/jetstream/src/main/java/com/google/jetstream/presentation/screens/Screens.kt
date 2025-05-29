@@ -16,84 +16,152 @@
 
 package com.google.jetstream.presentation.screens
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.IntRange
+import android.os.Parcelable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.jetstream.R
-import com.google.jetstream.data.convert.TryFrom
-import com.google.jetstream.presentation.screens.categories.CategoryMovieListScreen
-import com.google.jetstream.presentation.screens.moviedetails.MovieDetailsScreen
-import com.google.jetstream.presentation.screens.videoPlayer.VideoPlayerScreen
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
-enum class Screens(
-    private val args: List<String>? = null,
-    val isTabItem: Boolean = false,
-    val isMainNavigation: Boolean = false,
-    val tabIcon: ImageVector? = null,
-    val navigationVisibility: NavigationVisibility = NavigationVisibility.Visible,
-    @DrawableRes val navIcon: Int = 0
-) {
-    Profile,
-    Home(isTabItem = true, isMainNavigation = true, navIcon = R.drawable.ic_home),
-    Categories(isTabItem = true, isMainNavigation = true, navIcon = R.drawable.ic_category),
-    Movies(isTabItem = true, isMainNavigation = true, navIcon = R.drawable.ic_movies),
-    Shows(isTabItem = true, isMainNavigation = true, navIcon = R.drawable.ic_shows),
-    Favourites(isTabItem = true, isMainNavigation = true, navIcon = R.drawable.ic_favorites),
-    Search(isTabItem = true, tabIcon = Icons.Default.Search, navIcon = R.drawable.ic_search),
-    CategoryMovieList(listOf(CategoryMovieListScreen.CategoryIdBundleKey)),
-    MovieDetails(
-        listOf(MovieDetailsScreen.MOVIE_ID_BUNDLE_KEY),
-        navigationVisibility = NavigationVisibility.VisibleInNavigationSuite
-    ),
-    VideoPlayer(
-        listOf(VideoPlayerScreen.MOVIE_ID_BUNDLE_KEY),
-        navigationVisibility = NavigationVisibility.Hidden
-    );
+sealed interface Screens : Parcelable {
+    val isTabItem: Boolean get() = false
+    val isMainNavigation: Boolean get() = false
+    val tabIcon: ImageVector? get() = null
+    val navigationVisibility: NavigationVisibility get() = NavigationVisibility.Visible
+    val navIcon: Int get() = 0
+    val name: Int get() = 0
 
-    operator fun invoke(): String {
-        val argList = StringBuilder()
-        args?.let { nnArgs ->
-            nnArgs.forEach { arg -> argList.append("/{$arg}") }
-        }
-        return name + argList
+    @Parcelize
+    @Serializable
+    data object Profile : Screens
+
+    @Parcelize
+    @Serializable
+    data object Home : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
+
+        @IgnoredOnParcel
+        override val isMainNavigation = true
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_home
+
+        @IgnoredOnParcel
+        override val name = R.string.home_screen
     }
 
-    fun withArgs(vararg args: Any): String {
-        val destination = StringBuilder()
-        args.forEach { arg -> destination.append("/$arg") }
-        return name + destination
+    @Parcelize
+    @Serializable
+    data object Categories : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
+
+        @IgnoredOnParcel
+        override val isMainNavigation = true
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_category
+
+        @IgnoredOnParcel
+        override val name = R.string.categories_screen
     }
 
-    fun toIndex(): Int {
-        return entries.indexOf(this)
+    @Parcelize
+    @Serializable
+    data object Movies : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
+
+        @IgnoredOnParcel
+        override val isMainNavigation = true
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_movies
+
+        @IgnoredOnParcel
+        override val name = R.string.movies_screen
     }
 
-    companion object : TryFrom<String, Screens?> {
-        fun fromIndex(@IntRange(from = 0) index: Int): Screens? {
-            return when {
-                index < 0 -> null
-                index >= entries.size -> null
-                else -> entries[index]
-            }
-        }
+    @Parcelize
+    @Serializable
+    data object Shows : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
 
-        override fun tryFrom(from: String): Screens? {
-            return when (from) {
-                Profile() -> Profile
-                Home() -> Home
-                Categories() -> Categories
-                Movies() -> Movies
-                Shows() -> Shows
-                Favourites() -> Favourites
-                Search() -> Search
-                CategoryMovieList() -> CategoryMovieList
-                MovieDetails() -> MovieDetails
-                VideoPlayer() -> VideoPlayer
-                else -> null
-            }
-        }
+        @IgnoredOnParcel
+        override val isMainNavigation = true
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_shows
+
+        @IgnoredOnParcel
+        override val name = R.string.shows_screen
+    }
+
+    @Parcelize
+    @Serializable
+    data object Favourites : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
+
+        @IgnoredOnParcel
+        override val isMainNavigation = true
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_favorites
+
+        @IgnoredOnParcel
+        override val name = R.string.favorites_screen
+    }
+
+    @Parcelize
+    @Serializable
+    data object Search : Screens {
+        @IgnoredOnParcel
+        override val isTabItem = true
+
+        @IgnoredOnParcel
+        override val tabIcon = Icons.Default.Search
+
+        @IgnoredOnParcel
+        override val navIcon = R.drawable.ic_search
+
+        @IgnoredOnParcel
+        override val name = R.string.search_screen
+    }
+
+    @Parcelize
+    @Serializable
+    data class CategoryMovieList(val categoryId: String) : Screens
+
+    @Parcelize
+    @Serializable
+    data class MovieDetails(val movieId: String) : Screens {
+        @IgnoredOnParcel
+        override val navigationVisibility: NavigationVisibility =
+            NavigationVisibility.VisibleInNavigationSuite
+    }
+
+    @Parcelize
+    @Serializable
+    data class VideoPlayer(val movieId: String) : Screens {
+        @IgnoredOnParcel
+        override val navigationVisibility: NavigationVisibility = NavigationVisibility.Hidden
+    }
+
+    companion object {
+        val entries = listOf(
+            Home,
+            Categories,
+            Movies,
+            Shows,
+            Favourites,
+            Search,
+            Profile
+        )
     }
 }
 
@@ -105,10 +173,12 @@ sealed interface NavigationVisibility {
         override val isVisibleInNavigationSuite = true
         override val isVisibleInCustomNavigation = true
     }
+
     data object Hidden : NavigationVisibility {
         override val isVisibleInNavigationSuite = false
         override val isVisibleInCustomNavigation = false
     }
+
     data object VisibleInNavigationSuite : NavigationVisibility {
         override val isVisibleInNavigationSuite = true
         override val isVisibleInCustomNavigation = false

@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,8 +38,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.google.jetstream.data.entities.Movie
 import com.google.jetstream.data.entities.MovieCategoryDetails
 import com.google.jetstream.presentation.components.Error
@@ -51,22 +50,17 @@ import com.google.jetstream.presentation.theme.LocalContentPadding
 import com.google.jetstream.presentation.theme.Padding
 import com.google.jetstream.presentation.utils.focusOnInitialVisibility
 
-object CategoryMovieListScreen {
-    const val CategoryIdBundleKey = "categoryId"
-}
-
-val categoryMovieListScreenArguments = listOf(
-    navArgument(CategoryMovieListScreen.CategoryIdBundleKey) {
-        type = NavType.StringType
-    }
-)
-
 @Composable
 fun CategoryMovieListScreen(
+    categoryId: String,
     onBackPressed: () -> Unit,
     onMovieSelected: (Movie) -> Unit,
     categoryMovieListScreenViewModel: CategoryMovieListScreenViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(categoryId) {
+        categoryMovieListScreenViewModel.setCategoryId(categoryId)
+    }
+
     val uiState by categoryMovieListScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     when (val s = uiState) {

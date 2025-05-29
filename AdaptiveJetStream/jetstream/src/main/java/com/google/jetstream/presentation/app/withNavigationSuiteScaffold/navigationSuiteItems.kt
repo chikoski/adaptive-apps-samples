@@ -42,12 +42,17 @@ fun NavigationSuiteScope.navigationSuiteItems(
             onClick = {
                 onSelectScreen(screen)
             },
-            label = { Text(screen.name, color = MaterialTheme.colorScheme.primary) },
+            label = {
+                Text(
+                    text = stringResource(screen.name),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            },
             icon = {
                 Icon(
                     imageVector = ImageVector.vectorResource(screen.navIcon),
                     modifier = Modifier.size(24.dp),
-                    contentDescription = screen.name,
+                    contentDescription = stringResource(screen.name),
                     tint = MaterialTheme.colorScheme.primary
                 )
             },

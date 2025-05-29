@@ -87,9 +87,15 @@ object VideoPlayerScreen {
  */
 @Composable
 fun VideoPlayerScreen(
+    movieId: String,
     onBackPressed: () -> Unit,
     videoPlayerScreenViewModel: VideoPlayerScreenViewModel = hiltViewModel()
 ) {
+
+    LaunchedEffect(movieId) {
+        videoPlayerScreenViewModel.setMovieId(movieId)
+    }
+
     val uiState by videoPlayerScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     // TODO: Handle Loading & Error states

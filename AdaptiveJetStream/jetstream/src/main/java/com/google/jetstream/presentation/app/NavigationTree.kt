@@ -18,120 +18,112 @@ package com.google.jetstream.presentation.app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.google.jetstream.data.entities.Movie
-import com.google.jetstream.presentation.screens.Screens.Categories
-import com.google.jetstream.presentation.screens.Screens.CategoryMovieList
-import com.google.jetstream.presentation.screens.Screens.Favourites
-import com.google.jetstream.presentation.screens.Screens.Home
-import com.google.jetstream.presentation.screens.Screens.MovieDetails
-import com.google.jetstream.presentation.screens.Screens.Movies
-import com.google.jetstream.presentation.screens.Screens.Profile
-import com.google.jetstream.presentation.screens.Screens.Search
-import com.google.jetstream.presentation.screens.Screens.Shows
-import com.google.jetstream.presentation.screens.Screens.VideoPlayer
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
+import com.google.jetstream.presentation.screens.Screens
 import com.google.jetstream.presentation.screens.categories.CategoriesScreen
 import com.google.jetstream.presentation.screens.categories.CategoryMovieListScreen
-import com.google.jetstream.presentation.screens.categories.categoryMovieListScreenArguments
 import com.google.jetstream.presentation.screens.favourites.FavouritesScreen
 import com.google.jetstream.presentation.screens.home.HomeScreen
 import com.google.jetstream.presentation.screens.moviedetails.MovieDetailsScreen
-import com.google.jetstream.presentation.screens.moviedetails.movieDetailsScreenArguments
 import com.google.jetstream.presentation.screens.movies.MoviesScreen
 import com.google.jetstream.presentation.screens.profile.ProfileScreen
-import com.google.jetstream.presentation.screens.search.SearchScreen
 import com.google.jetstream.presentation.screens.shows.ShowsScreen
 import com.google.jetstream.presentation.screens.videoPlayer.VideoPlayerScreen
 
 @Composable
 fun NavigationTree(
-    navController: NavHostController,
+    appState: AppState,
     modifier: Modifier = Modifier,
     isTopBarVisible: Boolean = true,
     onScroll: (Boolean) -> Unit = {}
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Home(),
+    NavDisplay(
+        backStack = appState.backStack,
+        entryDecorators = listOf(
+            rememberSceneSetupNavEntryDecorator(),
+            rememberSavedStateNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
         modifier = modifier,
-    ) {
-        composable(
-            route = CategoryMovieList(),
-            arguments = categoryMovieListScreenArguments
-        ) {
-            CategoryMovieListScreen(
-                onBackPressed = navController::navigateUp,
-                onMovieSelected = { movie -> navController.openMovieDetailScreen(movie) }
-            )
-        }
-        composable(
-            route = MovieDetails(),
-            arguments = movieDetailsScreenArguments
-        ) {
-            MovieDetailsScreen(
-                goToMoviePlayer = { navController.navigate(VideoPlayer()) },
-                refreshScreenWithNewMovie = { movie ->
-                    navController.navigate(
-                        MovieDetails.withArgs(movie.id)
-                    ) {
-                        popUpTo(MovieDetails()) {
-                            inclusive = true
-                        }
-                    }
-                },
-                onBackPressed = navController::navigateUp,
-            )
-        }
-        composable(route = VideoPlayer()) {
-            VideoPlayerScreen(
-                onBackPressed = navController::navigateUp,
-            )
-        }
-        composable(Profile()) {
-            ProfileScreen()
-        }
-        composable(Home()) {
-            HomeScreen(
-                onMovieClick = { movie -> navController.openMovieDetailsScreen(movie.id) },
-                goToVideoPlayer = { movie: Movie -> navController.openVideoPlayer(movie.id) },
-                onScroll = onScroll,
-                isTopBarVisible = isTopBarVisible
-            )
-        }
-        composable(Categories()) {
-            CategoriesScreen(
-                onCategoryClick = navController.openCategoryMovieList(),
-                onScroll = onScroll,
-            )
-        }
-        composable(Movies()) {
-            MoviesScreen(
-                onMovieClick = { movie -> navController.openMovieDetailScreen(movie) },
-                onScroll = onScroll,
-                isTopBarVisible = isTopBarVisible
-            )
-        }
-        composable(Shows()) {
-            ShowsScreen(
-                onTVShowClick = { movie -> navController.openMovieDetailScreen(movie) },
-                onScroll = onScroll,
-                isTopBarVisible = isTopBarVisible
-            )
-        }
-        composable(Favourites()) {
-            FavouritesScreen(
-                onMovieClick = navController::openMovieDetailsScreen,
-                onScroll = onScroll,
-                isTopBarVisible = isTopBarVisible
-            )
-        }
-        composable(Search()) {
-            SearchScreen(
-                onMovieClick = { movie -> navController.openMovieDetailsScreen(movie.id) },
-                onScroll = onScroll,
-            )
+    ) { screen ->
+        when (screen) {
+            Screens.Categories -> NavEntry(screen) {
+                CategoriesScreen(
+                    onCategoryClick = {
+                        appState.navigate(Screens.CategoryMovieList(it))
+                    },
+                    onScroll = onScroll,
+                )
+            }
+
+            is Screens.CategoryMovieList -> NavEntry(screen) {
+                CategoryMovieListScreen(
+                    categoryId = screen.categoryId,
+                    onBackPressed = appState::tryNavigatePreviousScreen,
+                    onMovieSelected = appState::playMovie,
+                )
+            }
+
+            Screens.Movies -> NavEntry(screen) {
+                MoviesScreen(
+                    showMovieDetails = appState::showMovieDetails,
+                    playMovie = appState::playMovie,
+                    onScroll = onScroll,
+                    isTopBarVisible = isTopBarVisible
+                )
+            }
+
+            Screens.Shows -> NavEntry(screen) {
+                ShowsScreen(
+                    showTvShowDetails = appState::showMovieDetails,
+                    playTvShow = appState::playMovie,
+                    onScroll = onScroll,
+                    isTopBarVisible = isTopBarVisible
+                )
+            }
+
+            Screens.Favourites -> NavEntry(screen) {
+                FavouritesScreen(
+                    onMovieClick = appState::showMovieDetails,
+                    onScroll = onScroll,
+                    isTopBarVisible = isTopBarVisible
+                )
+            }
+
+            is Screens.MovieDetails -> NavEntry(screen) {
+                MovieDetailsScreen(
+                    movieId = screen.movieId,
+                    goToMoviePlayer = {
+                        appState.playMovie(screen.movieId)
+                    },
+                    onBackPressed = appState::tryNavigatePreviousScreen,
+                    refreshScreenWithNewMovie = appState::showMovieDetails,
+                )
+            }
+
+            Screens.Profile -> NavEntry(screen) {
+                ProfileScreen()
+            }
+
+            is Screens.VideoPlayer -> NavEntry(screen) {
+                VideoPlayerScreen(
+                    movieId = screen.movieId,
+                    onBackPressed = appState::tryNavigatePreviousScreen,
+                )
+            }
+
+            else -> NavEntry(screen) {
+                HomeScreen(
+                    onMovieClick = appState::showMovieDetails,
+                    goToVideoPlayer = appState::playMovie,
+                    onScroll = onScroll,
+                    isTopBarVisible = isTopBarVisible
+                )
+            }
         }
     }
 }

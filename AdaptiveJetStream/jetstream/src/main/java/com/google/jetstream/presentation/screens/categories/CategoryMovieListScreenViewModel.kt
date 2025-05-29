@@ -16,28 +16,26 @@
 
 package com.google.jetstream.presentation.screens.categories
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.jetstream.data.entities.MovieCategoryDetails
 import com.google.jetstream.data.repositories.MovieRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
 class CategoryMovieListScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     movieRepository: MovieRepository
 ) : ViewModel() {
 
+    private val categoryIdFlow = MutableStateFlow<String?>(null)
+
     val uiState =
-        savedStateHandle.getStateFlow<String?>(
-            CategoryMovieListScreen.CategoryIdBundleKey,
-            null
-        ).map { id ->
+        categoryIdFlow.map { id ->
             if (id == null) {
                 CategoryMovieListScreenUiState.Error
             } else {
@@ -49,10 +47,14 @@ class CategoryMovieListScreenViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = CategoryMovieListScreenUiState.Loading
         )
+
+    fun setCategoryId(categoryId: String) {
+        categoryIdFlow.tryEmit(categoryId)
+    }
 }
 
 sealed interface CategoryMovieListScreenUiState {
-    object Loading : CategoryMovieListScreenUiState
-    object Error : CategoryMovieListScreenUiState
+    data object Loading : CategoryMovieListScreenUiState
+    data object Error : CategoryMovieListScreenUiState
     data class Done(val movieCategoryDetails: MovieCategoryDetails) : CategoryMovieListScreenUiState
 }

@@ -16,19 +16,18 @@
 
 package com.google.jetstream.presentation.app
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavDestination
+import androidx.lifecycle.ViewModel
+import com.google.jetstream.data.entities.Movie
 import com.google.jetstream.presentation.screens.Screens
 
-class AppState internal constructor(
+class AppState(
     initialTopBarVisibility: Boolean = true,
     initialScreen: Screens = Screens.Home,
-) {
+) : ViewModel() {
     var isTopBarVisible by mutableStateOf(initialTopBarVisibility)
         private set
 
@@ -39,28 +38,51 @@ class AppState internal constructor(
 
     var isNavigationVisible by mutableStateOf(true)
 
+    val backStack = mutableStateListOf<Screens>(Screens.Home)
+
     private var navigationComponentType
         by mutableStateOf(NavigationComponentType.NavigationSuiteScaffold)
 
-    fun showTopBar() {
-        isTopBarVisible = true
+    fun updateTopBarVisibility(visibility: Boolean) {
+        isTopBarVisible = visibility
     }
 
-    fun hideTopBar() {
-        isTopBarVisible = false
+    fun showTopBar() {
+        updateTopBarVisibility(true)
     }
 
     fun updateTopBarFocusState(hasFocus: Boolean) {
         isTopBarFocused = hasFocus
     }
 
-    fun updateSelectedScreen(screen: Screens) {
+    fun navigate(screen: Screens) {
         selectedScreen = screen
+        backStack.add(selectedScreen)
         updateNavigationVisibility()
     }
 
-    fun updateSelectedScreen(destination: NavDestination) {
-        updateSelectedScreen(destination.route ?: Screens.Home.name)
+    fun showMovieDetails(movie: Movie) {
+        showMovieDetails(movie.id)
+    }
+
+    fun showMovieDetails(movieId: String) {
+        navigate(Screens.MovieDetails(movieId))
+    }
+
+    fun playMovie(movie: Movie) {
+        playMovie(movie.id)
+    }
+
+    fun playMovie(movieId: String) {
+        navigate(Screens.VideoPlayer(movieId))
+    }
+
+    fun tryNavigatePreviousScreen() {
+        backStack.removeLastOrNull()
+        backStack.lastOrNull()?.let {
+            selectedScreen = it
+        }
+        updateNavigationVisibility()
     }
 
     fun updateNavigationComponentType(type: NavigationComponentType) {
@@ -79,31 +101,4 @@ class AppState internal constructor(
             }
         }
     }
-
-    private fun updateSelectedScreen(destination: String) {
-        val screen = Screens.tryFrom(destination) ?: Screens.Home
-        updateSelectedScreen(screen)
-    }
-
-    private fun snapshot(): Pair<Boolean, Int> {
-        return isTopBarVisible to selectedScreen.toIndex()
-    }
-
-    companion object {
-        val Saver = Saver<AppState, Pair<Boolean, Int>>(
-            save = { it.snapshot() },
-            restore = {
-                val screen = Screens.fromIndex(it.second) ?: Screens.Home
-                AppState(it.first, screen)
-            }
-        )
-    }
-}
-
-@Composable
-fun rememberAppState(
-    initialIsVisibility: Boolean = true,
-    initialScreen: Screens = Screens.Home,
-) = rememberSaveable(saver = AppState.Saver) {
-    AppState(initialIsVisibility, initialScreen)
 }

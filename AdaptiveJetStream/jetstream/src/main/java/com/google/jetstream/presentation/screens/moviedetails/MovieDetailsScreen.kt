@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -78,11 +79,16 @@ val movieDetailsScreenArguments = listOf(
 
 @Composable
 fun MovieDetailsScreen(
+    movieId: String,
     goToMoviePlayer: () -> Unit,
     onBackPressed: () -> Unit,
     refreshScreenWithNewMovie: (Movie) -> Unit,
     movieDetailsScreenViewModel: MovieDetailsScreenViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(movieId) {
+        movieDetailsScreenViewModel.setMovieId(movieId)
+    }
+
     val uiState by movieDetailsScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     when (val s = uiState) {

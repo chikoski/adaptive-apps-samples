@@ -21,10 +21,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.jetstream.presentation.app.AppState
 import com.google.jetstream.presentation.app.NavigationComponentType
-import com.google.jetstream.presentation.app.rememberAppState
 import com.google.jetstream.presentation.app.rememberNavigationComponentType
 import com.google.jetstream.presentation.app.withNavigationSuiteScaffold.AppWithNavigationSuiteScaffold
 import com.google.jetstream.presentation.app.withNavigationSuiteScaffold.EnableProminentMovieListOverride
@@ -38,9 +37,8 @@ import com.google.jetstream.presentation.screens.Screens
 fun App(
     onActivityBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
-    appState: AppState = rememberAppState()
+    appState: AppState = hiltViewModel()
 ) {
-    val navController = rememberNavController()
     val navigationComponentType = rememberNavigationComponentType()
 
     val keyboardShortcuts = remember {
@@ -50,7 +48,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl),
                 action = {
                     if (appState.selectedScreen != Screens.Profile) {
-                        navController.navigate(Screens.Profile())
+                        appState.navigate(Screens.Profile)
                     }
                 }
             ),
@@ -59,7 +57,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Profile) {
-                        navController.navigate(Screens.Profile())
+                        appState.navigate(Screens.Profile)
                     }
                 }
             ),
@@ -68,7 +66,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Home) {
-                        navController.navigate(Screens.Home())
+                        appState.navigate(Screens.Home)
                     }
                 }
             ),
@@ -77,7 +75,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Categories) {
-                        navController.navigate(Screens.Categories())
+                        appState.navigate(Screens.Categories)
                     }
                 }
             ),
@@ -86,7 +84,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Movies) {
-                        navController.navigate(Screens.Movies())
+                        appState.navigate(Screens.Movies)
                     }
                 }
             ),
@@ -95,7 +93,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Shows) {
-                        navController.navigate(Screens.Shows())
+                        appState.navigate(Screens.Shows)
                     }
                 }
             ),
@@ -104,7 +102,7 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Favourites) {
-                        navController.navigate(Screens.Favourites())
+                        appState.navigate(Screens.Shows)
                     }
                 }
             ),
@@ -112,7 +110,7 @@ fun App(
                 key = Key.Slash,
                 action = {
                     if (appState.selectedScreen != Screens.Search) {
-                        navController.navigate(Screens.Search())
+                        appState.navigate(Screens.Search)
                     }
                 }
             ),
@@ -121,17 +119,11 @@ fun App(
                 modifierKeys = setOf(ModifierKey.Ctrl, ModifierKey.Alt),
                 action = {
                     if (appState.selectedScreen != Screens.Search) {
-                        navController.navigate(Screens.Search())
+                        appState.navigate(Screens.Search)
                     }
                 }
             ),
         )
-    }
-
-    LaunchedEffect(Unit) {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            appState.updateSelectedScreen(destination)
-        }
     }
 
     LaunchedEffect(navigationComponentType) {
@@ -143,7 +135,6 @@ fun App(
             EnableProminentMovieListOverride {
                 AppWithNavigationSuiteScaffold(
                     appState = appState,
-                    navController = navController,
                     modifier = modifier.handleKeyboardShortcuts(keyboardShortcuts),
                 )
             }
@@ -153,7 +144,6 @@ fun App(
             AppWithTopBarNavigation(
                 appState = appState,
                 onActivityBackPressed = onActivityBackPressed,
-                navController = navController,
                 modifier = modifier.handleKeyboardShortcuts(keyboardShortcuts),
             )
         }

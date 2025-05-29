@@ -45,6 +45,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -208,9 +209,10 @@ private fun TopBarTabContent(
     screen: Screens,
     modifier: Modifier = Modifier
 ) {
-    if (screen.tabIcon != null) {
+    val tabIcon = screen.tabIcon
+    if (tabIcon != null) {
         Icon(
-            screen.tabIcon,
+            tabIcon,
             modifier = Modifier
                 .padding(4.dp)
                 .then(modifier),
@@ -221,7 +223,7 @@ private fun TopBarTabContent(
     } else {
         Text(
             modifier = modifier,
-            text = screen.name,
+            text = stringResource(screen.name),
             style = MaterialTheme.typography.titleSmall.copy(
                 color = LocalContentColor.current
             )

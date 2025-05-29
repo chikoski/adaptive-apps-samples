@@ -26,10 +26,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.google.jetstream.presentation.app.AppState
 import com.google.jetstream.presentation.app.NavigationTree
-import com.google.jetstream.presentation.app.updateTopBarVisibility
 import com.google.jetstream.presentation.components.onBackButtonPressed
 import com.google.jetstream.presentation.components.shim.tryRequestFocus
 import com.google.jetstream.presentation.screens.Screens
@@ -37,7 +35,6 @@ import com.google.jetstream.presentation.screens.Screens
 @Composable
 fun AppWithTopBarNavigation(
     appState: AppState,
-    navController: NavHostController,
     onActivityBackPressed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -61,7 +58,7 @@ fun AppWithTopBarNavigation(
                 }
 
                 appState.selectedScreen != Screens.Home -> {
-                    navController.navigate(Screens.Home())
+                    appState.navigate(Screens.Home)
                 }
 
                 else -> {
@@ -75,11 +72,11 @@ fun AppWithTopBarNavigation(
                 appState.isTopBarVisible
         ) {
             TopBar(
-                items,
-                appState.selectedScreen,
-                {
+                items = items,
+                selectedScreen = appState.selectedScreen,
+                showScreen = {
                     if (it != appState.selectedScreen) {
-                        navController.navigate(it())
+                        appState.navigate(it)
                     }
                 },
                 modifier = Modifier
@@ -94,9 +91,9 @@ fun AppWithTopBarNavigation(
             )
         }
         NavigationTree(
-            navController = navController,
+            appState = appState,
             isTopBarVisible = appState.isTopBarVisible,
-            onScroll = { updateTopBarVisibility(appState, it) }
+            onScroll = appState::updateTopBarVisibility
         )
     }
 }

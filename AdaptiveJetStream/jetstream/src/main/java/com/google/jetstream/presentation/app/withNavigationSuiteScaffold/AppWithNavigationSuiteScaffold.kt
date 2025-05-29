@@ -33,19 +33,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
 import com.google.jetstream.presentation.app.AppState
 import com.google.jetstream.presentation.app.NavigationTree
-import com.google.jetstream.presentation.app.updateTopBarVisibility
 import com.google.jetstream.presentation.screens.Screens
 
 @Composable
 fun AppWithNavigationSuiteScaffold(
     appState: AppState,
-    navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
 
@@ -85,7 +82,7 @@ fun AppWithNavigationSuiteScaffold(
         navigationSuiteItems = {
             navigationSuiteItems(appState.selectedScreen, screensInGlobalNavigation) {
                 if (it != appState.selectedScreen) {
-                    navController.navigate(it())
+                    appState.navigate(it)
                 }
             }
             if (xrSession != null) {
@@ -113,7 +110,6 @@ fun AppWithNavigationSuiteScaffold(
                     }
                     TopBar(
                         appState = appState,
-                        navController = navController,
                         modifier = Modifier.padding(
                             start = horizontalPadding,
                             end = horizontalPadding,
@@ -124,10 +120,10 @@ fun AppWithNavigationSuiteScaffold(
             }
         ) { padding ->
             NavigationTree(
-                navController = navController,
+                appState = appState,
                 isTopBarVisible = appState.isTopBarVisible,
                 modifier = modifier.padding(padding),
-                onScroll = { updateTopBarVisibility(appState, it) }
+                onScroll = appState::updateTopBarVisibility
             )
         }
     }
