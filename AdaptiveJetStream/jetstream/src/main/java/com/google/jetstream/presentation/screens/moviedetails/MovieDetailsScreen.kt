@@ -59,6 +59,7 @@ import com.google.jetstream.presentation.components.Loading
 import com.google.jetstream.presentation.components.MoviesRow
 import com.google.jetstream.presentation.components.desktop.BackNavigationContextMenu
 import com.google.jetstream.presentation.components.feature.rememberIsBackButtonRequired
+import com.google.jetstream.presentation.components.scroll.verticalScrollIndication
 import com.google.jetstream.presentation.screens.moviedetails.components.CastAndCrewList
 import com.google.jetstream.presentation.screens.moviedetails.components.MovieDetails
 import com.google.jetstream.presentation.screens.moviedetails.components.MovieReviews
@@ -135,7 +136,7 @@ private fun Details(
             movieDetails = movieDetails,
             goToMoviePlayer = goToMoviePlayer,
             refreshScreenWithNewMovie = refreshScreenWithNewMovie,
-            modifier = modifier,
+            modifier = modifier.verticalScrollIndication(lazyListState = lazyListState),
             state = lazyListState
         )
         if (isBackButtonRequired) {

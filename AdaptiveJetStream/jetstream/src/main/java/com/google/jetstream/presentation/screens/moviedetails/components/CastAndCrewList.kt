@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.jetstream.R
 import com.google.jetstream.data.entities.MovieCast
+import com.google.jetstream.presentation.components.scroll.horizontalScrollIndication
 import com.google.jetstream.presentation.components.shim.ClassicCard
 import com.google.jetstream.presentation.components.shim.borderIndication
 import com.google.jetstream.presentation.theme.JetStreamBorder
@@ -56,6 +58,7 @@ fun CastAndCrewList(
     castAndCrew: List<MovieCast>,
     contentPadding: Padding = LocalContentPadding.current
 ) {
+    val lazyListState = remember { LazyListState() }
     Column(
         modifier = Modifier.padding(top = contentPadding.top),
     ) {
@@ -68,10 +71,12 @@ fun CastAndCrewList(
         )
         // ToDo: specify the pivot offset
         LazyRow(
+            state = lazyListState,
             modifier = Modifier
+                .horizontalScrollIndication(lazyListState = lazyListState)
                 .padding(top = 16.dp)
                 .focusRestorer(),
-            contentPadding = PaddingValues(start = contentPadding.start)
+            contentPadding = PaddingValues(start = contentPadding.start),
         ) {
             items(castAndCrew, key = { it.id }) {
                 CastAndCrewItem(it, modifier = Modifier.width(144.dp))

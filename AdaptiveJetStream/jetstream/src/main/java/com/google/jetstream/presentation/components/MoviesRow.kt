@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.jetstream.data.entities.Movie
 import com.google.jetstream.data.entities.MovieList
+import com.google.jetstream.presentation.components.scroll.horizontalScrollIndication
 import com.google.jetstream.presentation.theme.LocalCardWidth
 import com.google.jetstream.presentation.theme.LocalContentPadding
 import com.google.jetstream.presentation.theme.LocalHorizontalCardAspectRatio
@@ -94,6 +96,7 @@ fun MoviesRow(
     onMovieSelected: (movie: Movie) -> Unit = {}
 ) {
     val (lazyRow, firstItem) = remember { FocusRequester.createRefs() }
+    val lazyListState = rememberLazyListState()
 
     Column(
         modifier = modifier.focusGroup()
@@ -116,12 +119,14 @@ fun MoviesRow(
             label = "",
         ) { movieState ->
             LazyRow(
+                state = lazyListState,
                 contentPadding =
                 contentPadding.copy(top = 0.dp, bottom = 16.dp).intoPaddingValues(),
                 horizontalArrangement = Arrangement.spacedBy(LocalListItemGap.current),
                 modifier = Modifier
                     .focusRequester(lazyRow)
                     .focusRestorer(fallback = firstItem)
+                    .horizontalScrollIndication(lazyListState = lazyListState)
             ) {
                 itemsIndexed(movieState, key = { _, movie -> movie.id }) { index, movie ->
                     val itemModifier = if (index == 0) {
@@ -164,6 +169,7 @@ fun ImmersiveListMoviesRow(
     onMovieFocused: (Movie) -> Unit = {}
 ) {
     val (lazyRow, firstItem) = remember { FocusRequester.createRefs() }
+    val lazyListState = rememberLazyListState()
 
     Column(
         modifier = modifier.focusGroup()
@@ -188,11 +194,13 @@ fun ImmersiveListMoviesRow(
             label = "",
         ) { movieState ->
             LazyRow(
+                state = lazyListState,
                 contentPadding = contentPadding.copy(top = 0.dp, bottom = 0.dp).intoPaddingValues(),
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
                 modifier = Modifier
                     .focusRequester(lazyRow)
                     .focusRestorer(fallback = firstItem)
+                    .horizontalScrollIndication(lazyListState)
             ) {
                 itemsIndexed(
                     movieState,
